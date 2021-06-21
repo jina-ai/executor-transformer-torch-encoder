@@ -1,21 +1,22 @@
-import os
+__copyright__ = "Copyright (c) 2021 Jina AI Limited. All rights reserved."
+__license__ = "Apache-2.0"
 
-from jina import Flow, Document
+from typing import Callable
+import pytest
 
-cur_dir = os.path.dirname(os.path.abspath(__file__))
-
-
-def data_generator(num_docs):
-    for i in range(num_docs):
-        doc = Document(
-            uri=os.path.join(cur_dir, '..', 'data', 'test_image.png'))
-        doc.convert_image_uri_to_blob()
-        yield doc
+from jina import Flow, DocumentArray
+from jinahub.text.encoders.transform_encoder import TransformerTorchEncoder
 
 
-def test_use_in_flow():
-    with Flow.load_config('flow.yml') as flow:
-        data = flow.post(on='/index', inputs=data_generator(5))
+@pytest.mark.parametrize(
+    'request_size', [1, 10, 100]
+)
+def test_integration(
+    data_generator: Callable,
+    request_size: int
+):
+    with Flow(return_results=True).add(uses=TransformerTorchEncoder) as flow:
+        data = flow.post(on='/index', inputs=data_generator(), request_size=request_size)
         docs = data[0].docs
         for doc in docs:
-            assert doc.blob.shape == (64, 64, 3)
+            assert doc.embedding is not None

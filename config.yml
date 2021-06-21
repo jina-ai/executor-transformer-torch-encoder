@@ -1,6 +1,6 @@
-jtype: ImageNormalizer
+jtype: TransformerTorchEncoder
 with:
   {}
 metas:
   py_modules:
-    - normalizer.py
+    - transformer_encoder.py
