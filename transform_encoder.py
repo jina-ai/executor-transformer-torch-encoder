@@ -1,7 +1,7 @@
 __copyright__ = "Copyright (c) 2021 Jina AI Limited. All rights reserved."
 __license__ = "Apache-2.0"
 
-from typing import Optional, Dict, List, Any, Generator
+from typing import Optional, Dict, List, Any, Generator, Tuple
 import numpy as np
 import torch
 from transformers import AutoModel, AutoTokenizer
@@ -66,7 +66,7 @@ class TransformerTorchEncoder(Executor):
         )
         self.model.to(torch.device(device))
 
-    def _compute_embedding(self, hidden_states: 'torch.Tensor', input_tokens: Dict):
+    def _compute_embedding(self, hidden_states: Tuple['torch.Tensor'], input_tokens: Dict):
         fill_vals = {'cls': 0.0, 'mean': 0.0, 'max': -np.inf, 'min': np.inf}
         fill_val = torch.tensor(
             fill_vals[self.pooling_strategy], device=torch.device(self.device)
@@ -96,6 +96,7 @@ class TransformerTorchEncoder(Executor):
         if not self.tokenizer.pad_token:
             self.tokenizer.add_special_tokens({'pad_token': '[PAD]'})
             self.model.resize_token_embeddings(len(self.tokenizer.vocab))
+
         input_tokens = self.tokenizer(
             texts,
             max_length=self.max_length,
