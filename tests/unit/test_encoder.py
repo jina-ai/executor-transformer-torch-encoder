@@ -30,7 +30,7 @@ def test_compute_embeddings():
         hidden_states=hidden_states, input_tokens=tokens
     )
 
-    assert embeddings.shape == (1, embeddings)
+    assert embeddings.shape == (1, embedding_size)
 
 
 def test_encoding_cpu():
