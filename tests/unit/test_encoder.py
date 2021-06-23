@@ -97,7 +97,7 @@ def test_traversal_path(docs: DocumentArray, docs_per_path: List[List[str]], tra
         return validate
 
     encoder = TransformerTorchEncoder()
-    encoder.encode(docs, {'traversal_path': [traversal_path]})
+    encoder.encode(docs, {'traversal_paths': [traversal_path]})
 
     assert validate_traversal(docs_per_path)(docs)
 
@@ -114,7 +114,7 @@ def test_multiple_traversal_paths():
         docs[index].chunks[0].chunks.append(Document(text=sentences[3 - index]))
 
     encoder = TransformerTorchEncoder(
-        default_traversal_path=['r', 'c', 'cc']
+        default_traversal_paths=['r', 'c', 'cc']
     )
 
     encoder.encode(docs, {})

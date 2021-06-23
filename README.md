@@ -11,7 +11,7 @@ The following parameters can be used:
 - `max_length` (int, optional): Max length argument for the tokenizer
 - `embedding_fn_name` (str, default __call__): Function to call on the model in order to get output
 - `device` (str, default 'cpu'): Device to be used. Use 'cuda' for GPU
-- `default_traversal_path` (str, default 'r'): Used in the encode method an define traversal on the received `DocumentArray`
+- `default_traversal_paths` (List[str], Optional): Used in the encode method an define traversal on the received `DocumentArray`. Defaults to ['r']
 - `default_batch_size` (int, default 32): Defines the batch size for inference on the loaded PyTorch model.
 
 
