@@ -43,7 +43,7 @@ def test_encoding_cpu():
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="GPU is needed for this test")
-def test_encoding_gpu(data_generator: Callable):
+def test_encoding_gpu():
     enc = TransformerTorchEncoder(device="cuda")
     input_data = DocumentArray([Document(text="hello world")])
 
