@@ -1,6 +1,6 @@
 jtype: TransformerTorchEncoder
 with:
-  {}
+  device: 'cuda'
 metas:
   py_modules:
-    - transformer_encoder.py
+    - transform_encoder.py

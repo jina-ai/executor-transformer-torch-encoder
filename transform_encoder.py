@@ -1,12 +1,12 @@
-__copyright__ = "Copyright (c) 2021 Jina AI Limited. All rights reserved."
-__license__ = "Apache-2.0"
+__copyright__ = 'Copyright (c) 2021 Jina AI Limited. All rights reserved.'
+__license__ = 'Apache-2.0'
 
 from typing import Dict, Generator, Optional, Tuple
 
 import numpy as np
 import torch
 from jina import DocumentArray, Executor, requests
-from jina.logging.predefined import default_logger as logger
+from jina.logging.logger import JinaLogger
 from transformers import AutoModel, AutoTokenizer
 
 
@@ -17,14 +17,14 @@ class TransformerTorchEncoder(Executor):
 
     def __init__(
         self,
-        pretrained_model_name_or_path: str = "sentence-transformers/distilbert-base-nli-stsb-mean-tokens",
+        pretrained_model_name_or_path: str = 'sentence-transformers/distilbert-base-nli-stsb-mean-tokens',
         base_tokenizer_model: Optional[str] = None,
-        pooling_strategy: str = "mean",
+        pooling_strategy: str = 'mean',
         layer_index: int = -1,
         max_length: Optional[int] = None,
-        embedding_fn_name: str = "__call__",
-        device: str = "cpu",
-        default_traversal_path: str = "r",
+        embedding_fn_name: str = '__call__',
+        device: str = 'cpu',
+        default_traversal_path: str = 'r',
         default_batch_size: int = 32,
         *args,
         **kwargs,
@@ -52,15 +52,16 @@ class TransformerTorchEncoder(Executor):
         self.pooling_strategy = pooling_strategy
         self.layer_index = layer_index
         self.max_length = max_length
-        if not device in ["cpu", "cuda"]:
-            logger.error("Torch device not supported. Must be cpu or cuda!")
-            raise RuntimeError("Torch device not supported. Must be cpu or cuda!")
-        if device == "cuda" and not torch.cuda.is_available():
-            logger.warning(
-                "You tried to use GPU but torch did not detect your"
-                "GPU correctly. Defaulting to CPU. Check your CUDA installation!"
+        self.logger = JinaLogger(self.__class__.__name__)
+        if not device in ['cpu', 'cuda']:
+            self.logger.error('Torch device not supported. Must be cpu or cuda!')
+            raise RuntimeError('Torch device not supported. Must be cpu or cuda!')
+        if device == 'cuda' and not torch.cuda.is_available():
+            self.logger.warning(
+                'You tried to use GPU but torch did not detect your'
+                'GPU correctly. Defaulting to CPU. Check your CUDA installation!'
             )
-            device = "cpu"
+            device = 'cpu'
         self.device = device
         self.embedding_fn_name = embedding_fn_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_tokenizer_model)
@@ -70,22 +71,22 @@ class TransformerTorchEncoder(Executor):
         self.model.to(torch.device(device))
 
     def _compute_embedding(
-        self, hidden_states: Tuple["torch.Tensor"], input_tokens: Dict
+        self, hidden_states: Tuple['torch.Tensor'], input_tokens: Dict
     ):
-        fill_vals = {"cls": 0.0, "mean": 0.0, "max": -np.inf, "min": np.inf}
+        fill_vals = {'cls': 0.0, 'mean': 0.0, 'max': -np.inf, 'min': np.inf}
         fill_val = torch.tensor(
             fill_vals[self.pooling_strategy], device=torch.device(self.device)
         )
         layer = hidden_states[self.layer_index]
-        attn_mask = input_tokens["attention_mask"].unsqueeze(-1).expand_as(layer)
+        attn_mask = input_tokens['attention_mask'].unsqueeze(-1).expand_as(layer)
         layer = torch.where(attn_mask.bool(), layer, fill_val)
         embeddings = layer.sum(dim=1) / attn_mask.sum(dim=1)
         return embeddings.cpu().numpy()
 
     @requests
-    def encode(self, docs: "DocumentArray", parameters: Dict, **kwargs):
+    def encode(self, docs: DocumentArray, parameters: Dict, **kwargs):
         for batch in self._get_docs_batch_generator(docs, parameters):
-            texts = batch.get_attributes("text")
+            texts = batch.get_attributes('text')
 
             with torch.no_grad():
                 input_tokens = self._generate_input_tokens(texts)
@@ -99,15 +100,15 @@ class TransformerTorchEncoder(Executor):
 
     def _generate_input_tokens(self, texts):
         if not self.tokenizer.pad_token:
-            self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
+            self.tokenizer.add_special_tokens({'pad_token': '[PAD]'})
             self.model.resize_token_embeddings(len(self.tokenizer.vocab))
 
         input_tokens = self.tokenizer(
             texts,
             max_length=self.max_length,
-            padding="longest",
+            padding='longest',
             truncation=True,
-            return_tensors="pt",
+            return_tensors='pt',
         )
         input_tokens = {
             k: v.to(torch.device(self.device)) for k, v in input_tokens.items()
@@ -115,8 +116,8 @@ class TransformerTorchEncoder(Executor):
         return input_tokens
 
     def _get_docs_batch_generator(self, docs: DocumentArray, parameters: Dict):
-        traversal_path = parameters.get("traversal_path", self.default_traversal_path)
-        batch_size = parameters.get("batch_size", self.default_batch_size)
+        traversal_path = parameters.get('traversal_path', self.default_traversal_path)
+        batch_size = parameters.get('batch_size', self.default_batch_size)
         flat_docs = docs.traverse_flat(traversal_path)
         filtered_docs = DocumentArray(
             [doc for doc in flat_docs if doc is not None and doc.text is not None]
@@ -128,4 +129,4 @@ def _batch_generator(
     data: DocumentArray, batch_size: int
 ) -> Generator[DocumentArray, None, None]:
     for i in range(0, len(data), batch_size):
-        yield data[i : min(i + batch_size, len(data))]
+        yield data[i: i + batch_size]

@@ -4,13 +4,15 @@
 
 The following parameters can be used:
 
-- `pretrained_model_name_or_path` (str): Path to pretrained model or name of the model in transformers package
-- `base_tokenizer_model` (str, default None): Base tokenizer model
+- `pretrained_model_name_or_path` (str, default 'sentence-transformers/distilbert-base-nli-stsb-mean-tokens'): Path to pretrained model or name of the model in transformers package
+- `base_tokenizer_model` (str, optional): Base tokenizer model
 - `pooling_strategy` (str, default 'mean'): Pooling Strategy
 - `layer_index` (int, default -1): Index of the layer which contains the embeddings
-- `max_length` (int, default None): Max length argument for the tokenizer
+- `max_length` (int, optional): Max length argument for the tokenizer
 - `embedding_fn_name` (str, default __call__): Function to call on the model in order to get output
 - `device` (str, default 'cpu'): Device to be used. Use 'cuda' for GPU
+- `default_traversal_path` (str, default 'r'): Used in the encode method an define traversal on the received `DocumentArray`
+- `default_batch_size` (int, default 32): Defines the batch size for inference on the loaded PyTorch model.
 
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
