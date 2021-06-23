@@ -53,6 +53,7 @@ pods:
     with: 
       target_size: 42
 ``` 
+This does not support GPU at the moment.
 
 #### using source codes
 Use the source codes from JinaHub in your python codes,
@@ -112,6 +113,12 @@ pods:
 	from jina import Flow
 	
 	f = Flow().add(uses='docker://transformer-torch-encoder')
+	```
+    Or, when using the GPU image:
+	```python
+	from jina import Flow
+	
+	f = Flow().add(uses='docker://transformer-torch-encoder', docker_kwargs={'runtime': 'nvidia'})
 	```
 	
 
