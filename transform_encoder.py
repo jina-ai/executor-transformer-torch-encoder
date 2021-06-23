@@ -119,11 +119,9 @@ class TransformerTorchEncoder(Executor):
         return input_tokens
 
     def _get_docs_batch_generator(self, docs: DocumentArray, parameters: Dict):
-        traversal_paths = parameters.get('traversal_path', self.default_traversal_path)
+        traversal_path = parameters.get('traversal_path', self.default_traversal_path)
         batch_size = parameters.get('batch_size', self.default_batch_size)
-        flat_docs = []
-        for path in traversal_paths:
-            flat_docs.extend(docs.traverse_flat(traversal_paths))
+        flat_docs = docs.traverse_flat(traversal_path)
         filtered_docs = DocumentArray(
             [doc for doc in flat_docs if doc is not None and doc.text is not None]
         )
