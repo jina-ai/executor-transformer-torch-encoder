@@ -57,7 +57,7 @@ def test_traversal_path(
     flow = Flow(return_results=True).add(uses=TransformerTorchEncoder)
     with flow:
         resp = flow.post(
-            on="/test", inputs=docs, parameters={"traversal_path": [traversal_path]}
+            on="/test", inputs=docs, parameters={"traversal_paths": [traversal_path]}
         )
 
     assert validate_traversal(docs_per_path)(resp)

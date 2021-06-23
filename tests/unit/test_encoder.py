@@ -104,13 +104,14 @@ def test_traversal_path(
                     DocumentArray(res).traverse_flat([path]).get_attributes("embedding")
                 )
                 for emb in embeddings:
-                    assert emb is not None
+                    if emb is None:
+                        return False
                 return len(embeddings) == count
 
         return validate
 
-    encoder = TransformerTorchEncoder()
-    encoder.encode(docs, {"traversal_path": [traversal_path]})
+    encoder = TransformerTorchEncoder(default_traversal_paths=[traversal_path])
+    encoder.encode(docs, {"traversal_paths": [traversal_path]})
 
     assert validate_traversal(docs_per_path)(docs)
 
