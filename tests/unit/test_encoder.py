@@ -4,7 +4,7 @@ from typing import Callable, List
 import numpy as np
 import pytest
 import torch
-from jina import Document, DocumentArray, Flow
+from jina import Document, DocumentArray
 from jinahub.text.encoders.transform_encoder import TransformerTorchEncoder
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -100,3 +100,25 @@ def test_traversal_path(docs: DocumentArray, docs_per_path: List[List[str]], tra
     encoder.encode(docs, {'traversal_path': [traversal_path]})
 
     assert validate_traversal(docs_per_path)(docs)
+
+
+def test_multiple_traversal_paths():
+    sentences = list()
+    sentences.append('Hello, my name is Michael.')
+    sentences.append('Today we are going to Disney World.')
+    sentences.append('There are animals on the road')
+    sentences.append('A dog is running down the road')
+    docs = DocumentArray([Document(text=sentence) for sentence in sentences])
+    for index, sent in enumerate(sentences):
+        docs[index].chunks.append(Document(text=sent))
+        docs[index].chunks[0].chunks.append(Document(text=sentences[3 - index]))
+
+    encoder = TransformerTorchEncoder(
+        default_traversal_path=['r', 'c', 'cc']
+    )
+
+    encoder.encode(docs, {})
+    for doc in docs:
+        assert doc.embedding.shape == (768,)
+        assert doc.chunks[0].embedding.shape == (768,)
+        assert doc.chunks[0].chunks[0].embedding.shape == (768,)

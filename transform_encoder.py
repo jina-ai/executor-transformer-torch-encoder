@@ -1,7 +1,7 @@
 __copyright__ = 'Copyright (c) 2021 Jina AI Limited. All rights reserved.'
 __license__ = 'Apache-2.0'
 
-from typing import Dict, Generator, Optional, Tuple
+from typing import Dict, Generator, Optional, Tuple, List
 
 import numpy as np
 import torch
@@ -24,7 +24,7 @@ class TransformerTorchEncoder(Executor):
         max_length: Optional[int] = None,
         embedding_fn_name: str = '__call__',
         device: str = 'cpu',
-        default_traversal_path: str = 'r',
+        default_traversal_path: Optional[List[str]] = None,
         default_batch_size: int = 32,
         *args,
         **kwargs,
@@ -43,7 +43,10 @@ class TransformerTorchEncoder(Executor):
         :param kwargs:
         """
         super().__init__(*args, **kwargs)
-        self.default_traversal_path = default_traversal_path
+        if default_traversal_path is not None:
+            self.default_traversal_path = default_traversal_path
+        else:
+            self.default_traversal_path = ['r']
         self.default_batch_size = default_batch_size
         self.pretrained_model_name_or_path = pretrained_model_name_or_path
         self.base_tokenizer_model = (
@@ -116,9 +119,11 @@ class TransformerTorchEncoder(Executor):
         return input_tokens
 
     def _get_docs_batch_generator(self, docs: DocumentArray, parameters: Dict):
-        traversal_path = parameters.get('traversal_path', self.default_traversal_path)
+        traversal_paths = parameters.get('traversal_path', self.default_traversal_path)
         batch_size = parameters.get('batch_size', self.default_batch_size)
-        flat_docs = docs.traverse_flat(traversal_path)
+        flat_docs = []
+        for path in traversal_paths:
+            flat_docs.extend(docs.traverse_flat(traversal_paths))
         filtered_docs = DocumentArray(
             [doc for doc in flat_docs if doc is not None and doc.text is not None]
         )
