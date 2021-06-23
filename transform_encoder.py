@@ -24,29 +24,29 @@ class TransformerTorchEncoder(Executor):
         max_length: Optional[int] = None,
         embedding_fn_name: str = '__call__',
         device: str = 'cpu',
-        default_traversal_path: Optional[List[str]] = None,
+        default_traversal_paths: Optional[List[str]] = None,
         default_batch_size: int = 32,
         *args,
         **kwargs,
     ):
         """
-        :param pretrained_model_name_or_path:
-        :param base_tokenizer_model:
-        :param pooling_strategy:
-        :param layer_index:
-        :param max_length:
-        :param embedding_fn_name:
-        :param device:
-        :param default_traversal_path: Used in the encode method an define traversal on the received `DocumentArray`
+        :param pretrained_model_name_or_path: Name of the pretrained model or path to the model
+        :param base_tokenizer_model: Base tokenizer model
+        :param pooling_strategy: The pooling strategy to be used
+        :param layer_index: Index of the layer which contains the embeddings
+        :param max_length: Max length argument for the tokenizer
+        :param embedding_fn_name: Function to call on the model in order to get output
+        :param device: Device to be used. Use 'cuda' for GPU
+        :param default_traversal_paths: Used in the encode method an define traversal on the received `DocumentArray`
         :param default_batch_size: Defines the batch size for inference on the loaded PyTorch model.
-        :param args:
-        :param kwargs:
+        :param args: Arguments
+        :param kwargs: Keyword Arguments
         """
         super().__init__(*args, **kwargs)
-        if default_traversal_path is not None:
-            self.default_traversal_path = default_traversal_path
+        if default_traversal_paths is not None:
+            self.default_traversal_paths = default_traversal_paths
         else:
-            self.default_traversal_path = ['r']
+            self.default_traversal_paths = ['r']
         self.default_batch_size = default_batch_size
         self.pretrained_model_name_or_path = pretrained_model_name_or_path
         self.base_tokenizer_model = (
@@ -119,7 +119,7 @@ class TransformerTorchEncoder(Executor):
         return input_tokens
 
     def _get_docs_batch_generator(self, docs: DocumentArray, parameters: Dict):
-        traversal_paths = parameters.get('traversal_path', self.default_traversal_path)
+        traversal_paths = parameters.get('traversal_paths', self.default_traversal_paths)
         batch_size = parameters.get('batch_size', self.default_batch_size)
         flat_docs = docs.traverse_flat(traversal_paths)
         filtered_docs = DocumentArray(

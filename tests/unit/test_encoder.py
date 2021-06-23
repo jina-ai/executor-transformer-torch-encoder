@@ -126,7 +126,7 @@ def test_multiple_traversal_paths():
         docs[index].chunks.append(Document(text=sent))
         docs[index].chunks[0].chunks.append(Document(text=sentences[3 - index]))
 
-    encoder = TransformerTorchEncoder(default_traversal_path=["r", "c", "cc"])
+    encoder = TransformerTorchEncoder(default_traversal_paths=["r", "c", "cc"])
 
     encoder.encode(docs, {})
     for doc in docs:
