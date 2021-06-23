@@ -61,5 +61,3 @@ def test_traversal_path(
         )
 
     assert validate_traversal(docs_per_path)(resp)
-    for doc in resp[0].docs:
-        assert doc.embedding is not None
