@@ -1,10 +1,10 @@
 import os
-from typing import Callable
+from typing import Callable, List
 
 import numpy as np
 import pytest
 import torch
-from jina import Document, DocumentArray
+from jina import Document, DocumentArray, Flow
 from jinahub.text.encoders.transform_encoder import TransformerTorchEncoder
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -76,3 +76,27 @@ def test_encodes_semantic_meaning():
     assert small_distance < dist('C', 'B')
     assert small_distance < dist('C', 'A')
     assert small_distance < dist('B', 'A')
+
+
+@pytest.mark.parametrize(
+    ['docs', 'docs_per_path', 'traversal_path'],
+    [
+        (pytest.lazy_fixture('docs_with_text'), [['r', 10], ['c', 0], ['cc', 0]], 'r'),
+        (pytest.lazy_fixture('docs_with_chunk_text'), [['r', 0], ['c', 10], ['cc', 0]], 'c'),
+        (pytest.lazy_fixture('docs_with_chunk_chunk_text'), [['r', 0], ['c', 0], ['cc', 10]], 'cc')
+    ]
+)
+def test_traversal_path(docs: DocumentArray, docs_per_path: List[List[str]], traversal_path: str):
+    def validate_traversal(expected_docs_per_path: List[List[str]]):
+        def validate(res):
+            for path, count in expected_docs_per_path:
+                embeddings = DocumentArray(res).traverse_flat([path]).get_attributes('embedding')
+                for emb in embeddings:
+                    assert emb is not None
+                return len(embeddings) == count
+        return validate
+
+    encoder = TransformerTorchEncoder()
+    encoder.encode(docs, {'traversal_path': [traversal_path]})
+
+    assert validate_traversal(docs_per_path)(docs)
