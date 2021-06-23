@@ -1,7 +1,7 @@
 FROM jinaai/jina:master as base
 
-COPY . ./image_normalizer/
-WORKDIR ./image_normalizer
+COPY . ./transformer-text-encoder/
+WORKDIR ./transformer-text-encoder
 
 RUN pip install .
 
