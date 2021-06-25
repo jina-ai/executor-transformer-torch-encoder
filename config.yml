@@ -1,6 +1,6 @@
-jtype: ImageNormalizer
+jtype: TransformerTorchEncoder
 with:
-  {}
+  device: 'cuda'
 metas:
   py_modules:
-    - normalizer.py
+    - transform_encoder.py
