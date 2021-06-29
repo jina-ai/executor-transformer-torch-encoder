@@ -13,6 +13,18 @@ from transformers import AutoModel, AutoTokenizer
 class TransformerTorchEncoder(Executor):
     """
     The transformer torch encoder encodes sentences into embeddings.
+
+    :param pretrained_model_name_or_path: Name of the pretrained model or path to the model
+    :param base_tokenizer_model: Base tokenizer model
+    :param pooling_strategy: The pooling strategy to be used
+    :param layer_index: Index of the layer which contains the embeddings
+    :param max_length: Max length argument for the tokenizer
+    :param embedding_fn_name: Function to call on the model in order to get output
+    :param device: Device to be used. Use 'cuda' for GPU
+    :param default_traversal_paths: Used in the encode method an define traversal on the received `DocumentArray`
+    :param default_batch_size: Defines the batch size for inference on the loaded PyTorch model.
+    :param args: Arguments
+    :param kwargs: Keyword Arguments
     """
 
     def __init__(
@@ -29,19 +41,6 @@ class TransformerTorchEncoder(Executor):
         *args,
         **kwargs,
     ):
-        """
-        :param pretrained_model_name_or_path: Name of the pretrained model or path to the model
-        :param base_tokenizer_model: Base tokenizer model
-        :param pooling_strategy: The pooling strategy to be used
-        :param layer_index: Index of the layer which contains the embeddings
-        :param max_length: Max length argument for the tokenizer
-        :param embedding_fn_name: Function to call on the model in order to get output
-        :param device: Device to be used. Use 'cuda' for GPU
-        :param default_traversal_paths: Used in the encode method an define traversal on the received `DocumentArray`
-        :param default_batch_size: Defines the batch size for inference on the loaded PyTorch model.
-        :param args: Arguments
-        :param kwargs: Keyword Arguments
-        """
         super().__init__(*args, **kwargs)
         if default_traversal_paths is not None:
             self.default_traversal_paths = default_traversal_paths
@@ -87,7 +86,13 @@ class TransformerTorchEncoder(Executor):
         return embeddings.cpu().numpy()
 
     @requests
-    def encode(self, docs: DocumentArray, parameters: Dict, **kwargs):
+    def encode(self, docs: Optional[DocumentArray], parameters: Dict, **kwargs):
+        """
+        Encode text data into a ndarray of `D` as dimension, and fill the embedding of each Document.
+
+        :param docs: DocumentArray containing text
+        :param parameters: parameters dictionary
+        """
         for batch in self._get_docs_batch_generator(docs, parameters):
             texts = batch.get_attributes('text')
 

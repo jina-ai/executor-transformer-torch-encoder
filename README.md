@@ -59,9 +59,13 @@ This does not support GPU at the moment.
 Use the source codes from JinaHub in your python codes,
 
 ```python
-from jina import Flow
-	
+from jina import Flow, Document
+
 f = Flow().add(uses='jinahub://TransformerTorchEncoder')
+
+with f:
+    resp = f.post(on='foo', inputs=Document(text='hello Jina'), return_results=True)
+    print(f'{resp[0].docs[0].embedding.shape}')
 ```
 
 or in the `.yml` config.
