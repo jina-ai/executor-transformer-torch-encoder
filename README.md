@@ -40,7 +40,8 @@ Use the prebuilt images from JinaHub in your python codes,
 ```python
 from jina import Flow
 	
-f = Flow().add(uses='jinahub+docker://TransformerTorchEncoder')
+f = Flow().add(uses='jinahub+docker://TransformerTorchEncoder',
+               volumes='/your_user/.cache/huggingface:/root/.cache/huggingface')
 ```
 
 or in the `.yml` config.
@@ -50,6 +51,7 @@ jtype: Flow
 pods:
   - name: encoder
     uses: 'jinahub+docker://TransformerTorchEncoder'
+    volumes: '/your_user/.cache/huggingface:/root/.cache/huggingface'
     with: 
       target_size: 42
 ``` 
