@@ -4,3 +4,6 @@ COPY . ./transformer-text-encoder/
 WORKDIR ./transformer-text-encoder
 
 RUN pip install .
+
+ENTRYPOINT ["jina", "executor", "--uses", "config.yml"]
+
