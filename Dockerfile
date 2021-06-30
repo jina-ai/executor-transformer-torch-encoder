@@ -1,4 +1,4 @@
-FROM jinaai/jina:master as base
+FROM jinaai/jina:2.0
 
 COPY . ./transformer-text-encoder/
 WORKDIR ./transformer-text-encoder
