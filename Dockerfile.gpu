@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.3.1-cudnn8-runtime as base
+FROM nvidia/cuda:11.3.1-cudnn8-runtime
 
 RUN apt update && apt install -y python3.8 python3-pip
 
@@ -7,11 +7,4 @@ WORKDIR ./transformer-text-encoder
 
 RUN pip install .
 
-FROM base
-RUN pip install -r tests/requirements.txt
-# Weird bug on GPU when executing tests in multiple folders
-RUN pytest -s -v tests/unit
-RUN pytest -s -v tests/integration
-
-FROM base
 ENTRYPOINT ["jina", "executor", "--uses", "config.yml"]
