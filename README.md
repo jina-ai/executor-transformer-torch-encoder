@@ -28,7 +28,14 @@ The following parameters can be used:
 
 ## 🌱 Prerequisites
 
-No prerequisites are required to run this executor. 
+To install the dependencies locally, run 
+```
+pip install . -r tests/requirements.txt
+```
+To verify the installation works:
+```
+pytest tests
+```
 
 ## 🚀 Usages
 

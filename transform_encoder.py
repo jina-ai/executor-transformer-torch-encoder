@@ -1,12 +1,13 @@
 __copyright__ = 'Copyright (c) 2021 Jina AI Limited. All rights reserved.'
 __license__ = 'Apache-2.0'
 
-from typing import Dict, Generator, Optional, Tuple, List
+from typing import Dict, Generator, List, Optional, Tuple
 
 import numpy as np
 import torch
 from jina import DocumentArray, Executor, requests
 from jina.logging.logger import JinaLogger
+from jina_commons.batching import get_docs_batch_generator
 from transformers import AutoModel, AutoTokenizer
 
 
@@ -91,9 +92,18 @@ class TransformerTorchEncoder(Executor):
         Encode text data into a ndarray of `D` as dimension, and fill the embedding of each Document.
 
         :param docs: DocumentArray containing text
-        :param parameters: parameters dictionary
+        :param parameters: dictionary to define the `traversal_paths` and the `batch_size`. For example,
+               `parameters={'traversal_paths': ['r'], 'batch_size': 10}`.
+        :param kwargs: Additional key value arguments.
         """
-        for batch in self._get_docs_batch_generator(docs, parameters):
+        for batch in get_docs_batch_generator(
+            docs,
+            traversal_path=parameters.get(
+                'traversal_paths', self.default_traversal_paths
+            ),
+            batch_size=parameters.get('batch_size', self.default_batch_size),
+            needs_attr='text',
+        ):
             texts = batch.get_attributes('text')
 
             with torch.no_grad():
@@ -122,19 +132,3 @@ class TransformerTorchEncoder(Executor):
             k: v.to(torch.device(self.device)) for k, v in input_tokens.items()
         }
         return input_tokens
-
-    def _get_docs_batch_generator(self, docs: DocumentArray, parameters: Dict):
-        traversal_paths = parameters.get('traversal_paths', self.default_traversal_paths)
-        batch_size = parameters.get('batch_size', self.default_batch_size)
-        flat_docs = docs.traverse_flat(traversal_paths)
-        filtered_docs = DocumentArray(
-            [doc for doc in flat_docs if doc is not None and doc.text is not None]
-        )
-        return _batch_generator(filtered_docs, batch_size)
-
-
-def _batch_generator(
-    data: DocumentArray, batch_size: int
-) -> Generator[DocumentArray, None, None]:
-    for i in range(0, len(data), batch_size):
-        yield data[i: i + batch_size]
