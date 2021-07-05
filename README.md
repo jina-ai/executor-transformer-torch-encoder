@@ -28,7 +28,7 @@ The following parameters can be used:
 
 ## 🌱 Prerequisites
 
-To install the dependencies locally, run 
+To install the dependencies locally run 
 ```
 pip install . -r tests/requirements.txt
 ```
