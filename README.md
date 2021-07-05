@@ -85,7 +85,7 @@ pods:
 1. Install the `executor-transformer-torch-encoder` package.
 
 	```bash
-	pip install git+https://github.com/executor-transformer-torch-encoder.git
+	pip install git+https://github.com/jina-ai/executor-transformer-torch-encoder.git
 	```
 
 1. Use `executor-transformer-torch-encoder` in your code
