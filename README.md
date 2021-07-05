@@ -30,7 +30,8 @@ The following parameters can be used:
 
 To install the dependencies locally run 
 ```
-pip install . -r tests/requirements.txt
+pip install . 
+pip install -r tests/requirements.txt
 ```
 To verify the installation works:
 ```
