@@ -12,8 +12,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    py_modules=['jinahub.text.encoders.transform_encoder'],
-    package_dir={'jinahub.text.encoders': '.'},
+    py_modules=['jinahub.encoder.transform_encoder'],
+    package_dir={'jinahub.encoder': '.'},
     install_requires=open("requirements.txt").readlines(),
     python_requires=">=3.7",
 )
