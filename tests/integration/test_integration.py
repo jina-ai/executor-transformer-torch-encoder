@@ -5,7 +5,7 @@ from typing import Callable, List
 
 import pytest
 from jina import DocumentArray, Flow
-suimport TransformerTorchEncoder
+import TransformerTorchEncoder
 
 
 @pytest.mark.parametrize("request_size", [1, 10, 50, 100])
