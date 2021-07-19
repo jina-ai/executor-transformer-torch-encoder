@@ -69,7 +69,9 @@ class TransformerTorchEncoder(Executor):
         self.embedding_fn_name = embedding_fn_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_tokenizer_model)
         self.model = AutoModel.from_pretrained(
-            self.pretrained_model_name_or_path, output_hidden_states=True
+            self.pretrained_model_name_or_path,
+            output_hidden_states=True,
+            **kwargs,
         )
         self.model.to(torch.device(device))
 
