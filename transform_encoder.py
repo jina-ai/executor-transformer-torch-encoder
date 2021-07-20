@@ -82,7 +82,7 @@ class TransformerTorchEncoder(Executor):
         )
         layer = hidden_states[self.layer_index]
 
-        attn_mask = inputs['attention_mask']
+        attn_mask = input_tokens['attention_mask']
 
         # Fix LongFormerModel like model which has mismatch seq_len between
         # attention_mask and hidden_states
@@ -92,7 +92,7 @@ class TransformerTorchEncoder(Executor):
 
         expand_attn_mask = attn_mask.unsqueeze(-1).expand_as(layer)
 
-        layer = torch.where(attn_mask.bool(), layer, fill_val)
+        layer = torch.where(expand_attn_mask.bool(), layer, fill_val)
         embeddings = layer.sum(dim=1) / expand_attn_mask.sum(dim=1)
         return embeddings.cpu().numpy()
 
