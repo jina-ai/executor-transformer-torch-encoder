@@ -81,9 +81,19 @@ class TransformerTorchEncoder(Executor):
             fill_vals[self.pooling_strategy], device=torch.device(self.device)
         )
         layer = hidden_states[self.layer_index]
-        attn_mask = input_tokens['attention_mask'].unsqueeze(-1).expand_as(layer)
+
+        attn_mask = inputs['attention_mask']
+
+        # Fix LongFormerModel like model which has mismatch seq_len between
+        # attention_mask and hidden_states
+        padding_len = layer.size(1) - attn_mask.size(1)
+        if padding_len > 0:
+            attn_mask = torch.nn.functional.pad(attn_mask, (0, padding_len), value=0)
+
+        expand_attn_mask = attn_mask.unsqueeze(-1).expand_as(layer)
+
         layer = torch.where(attn_mask.bool(), layer, fill_val)
-        embeddings = layer.sum(dim=1) / attn_mask.sum(dim=1)
+        embeddings = layer.sum(dim=1) / expand_attn_mask.sum(dim=1)
         return embeddings.cpu().numpy()
 
     @requests
