@@ -39,7 +39,7 @@ class TransformerTorchEncoder(Executor):
         max_length: Optional[int] = None,
         embedding_fn_name: str = '__call__',
         device: str = 'cpu',
-        num_threads: int = 8,
+        num_threads: int = 1,
         default_traversal_paths: Optional[List[str]] = None,
         default_batch_size: int = 32,
         *args,
