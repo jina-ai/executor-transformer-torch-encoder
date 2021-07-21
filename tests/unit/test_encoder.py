@@ -20,11 +20,14 @@ def test_compute_tokens():
     assert tokens["attention_mask"].shape == (2, 7)
 
 
-def test_compute_embeddings():
+@pytest.mark.parametrize(
+    'hidden_seqlen', [4, 8]
+)
+def test_compute_embeddings(hidden_seqlen):
     embedding_size = 10
     enc = TransformerTorchEncoder()
     tokens = enc._generate_input_tokens(["hello world"])
-    hidden_states = tuple(torch.zeros(1, 4, embedding_size) for _ in range(7))
+    hidden_states = tuple(torch.zeros(1, hidden_seqlen, embedding_size) for _ in range(7))
 
     embeddings = enc._compute_embedding(
         hidden_states=hidden_states, input_tokens=tokens
