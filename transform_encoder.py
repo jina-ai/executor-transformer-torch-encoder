@@ -72,7 +72,7 @@ class TransformerTorchEncoder(Executor):
         if device == 'cpu':
             cpu_num = os.cpu_count()
             if num_threads > cpu_num:
-                self.logger.warning(f'You tried to use {num_threads} threads > {cpu_count} CPU cores')
+                self.logger.warning(f'You tried to use {num_threads} threads > {cpu_num} CPU cores')
             else:
                 os.environ['OMP_NUM_THREADS'] = str(num_threads)
                 os.environ['OPENBLAS_NUM_THREADS'] = str(num_threads)
