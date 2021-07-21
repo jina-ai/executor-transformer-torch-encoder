@@ -3,6 +3,7 @@ __license__ = 'Apache-2.0'
 
 from typing import Dict, Generator, List, Optional, Tuple
 
+import os
 import numpy as np
 import torch
 from jina import DocumentArray, Executor, requests
@@ -22,6 +23,7 @@ class TransformerTorchEncoder(Executor):
     :param max_length: Max length argument for the tokenizer
     :param embedding_fn_name: Function to call on the model in order to get output
     :param device: Device to be used. Use 'cuda' for GPU
+    :param num_threads: The number of threads used for intraop parallelism on CPU
     :param default_traversal_paths: Used in the encode method an define traversal on the received `DocumentArray`
     :param default_batch_size: Defines the batch size for inference on the loaded PyTorch model.
     :param args: Arguments
@@ -37,6 +39,7 @@ class TransformerTorchEncoder(Executor):
         max_length: Optional[int] = None,
         embedding_fn_name: str = '__call__',
         device: str = 'cpu',
+        num_threads: int = 1,
         default_traversal_paths: Optional[List[str]] = None,
         default_batch_size: int = 32,
         *args,
@@ -65,6 +68,14 @@ class TransformerTorchEncoder(Executor):
                 'GPU correctly. Defaulting to CPU. Check your CUDA installation!'
             )
             device = 'cpu'
+
+        if device == 'cpu':
+            os.environ['OMP_NUM_THREADS'] = str(num_threads)
+            os.environ['OPENBLAS_NUM_THREADS'] = str(num_threads)
+            os.environ['MKL_NUM_THREADS'] = str(num_threads)
+
+            torch.set_num_threads(num_threads)
+
         self.device = device
         self.embedding_fn_name = embedding_fn_name
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_tokenizer_model)
