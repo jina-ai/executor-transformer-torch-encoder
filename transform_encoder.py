@@ -39,7 +39,7 @@ class TransformerTorchEncoder(Executor):
         max_length: Optional[int] = None,
         embedding_fn_name: str = '__call__',
         device: str = 'cpu',
-        num_threads: int = 1,
+        num_threads: int = 8,
         default_traversal_paths: Optional[List[str]] = None,
         default_batch_size: int = 32,
         *args,
@@ -70,11 +70,15 @@ class TransformerTorchEncoder(Executor):
             device = 'cpu'
 
         if device == 'cpu':
-            os.environ['OMP_NUM_THREADS'] = str(num_threads)
-            os.environ['OPENBLAS_NUM_THREADS'] = str(num_threads)
-            os.environ['MKL_NUM_THREADS'] = str(num_threads)
+            cpu_num = os.cpu_count()
+            if num_threads > cpu_num:
+                self.logger.warning(f'You tried to use {num_threads} threads > {cpu_count} CPU cores')
+            else:
+                os.environ['OMP_NUM_THREADS'] = str(num_threads)
+                os.environ['OPENBLAS_NUM_THREADS'] = str(num_threads)
+                os.environ['MKL_NUM_THREADS'] = str(num_threads)
 
-            torch.set_num_threads(num_threads)
+                torch.set_num_threads(num_threads)
 
         self.device = device
         self.embedding_fn_name = embedding_fn_name
