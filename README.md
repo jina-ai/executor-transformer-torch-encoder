@@ -1,3 +1,5 @@
+MOVED TO https://github.com/jina-ai/executors/tree/main/jinahub/encoders/text/TransformerTorchEncoder
+
 # ✨ Transformer Torch Encoder
 
 **Transformer Torch Encoder** is a class that encodes sentences into embeddings.
